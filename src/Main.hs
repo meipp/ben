@@ -17,9 +17,8 @@ benchmark args commands files classifiers = do
     fs <- find files
     -- measurements <- mapM (uncurry (measureCommand args)) [(c, f) | c <- commands, f <- fs]
     measurements <- forMProgress [(c, f) | c <- commands, f <- fs] (uncurry (measureCommand args))
-    ms <- mapM (classify classifiers) measurements
     -- BL.putStr (encode ms)
-    analyze (map fst classifiers) ms
+    analyze (map fst classifiers) measurements
 
 -- recursively enumerates directory
 find :: FilePath -> IO [FilePath]

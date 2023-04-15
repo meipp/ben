@@ -4,6 +4,7 @@
 module Measurement where
 
 import CmdLine
+import Classification
 
 import System.Process
 import System.Exit
@@ -46,8 +47,9 @@ measureCommand args (name, cmd) file = do
 
     when (result == Left ()) (terminateProcess p)
 
+    stdout' <- hGetContents' stdout
     Measurement name (cmd ++ " " ++ file) <$> pure (
         case result of
             Left ()             -> Timeout
             Right ExitSuccess     -> Success
-            Right (ExitFailure n) -> Failure n) <*> hGetContents' stdout <*> hGetContents' stderr <*> pure (milliseconds diff) <*> pure []
+            Right (ExitFailure n) -> Failure n) <*> pure stdout' <*> hGetContents' stderr <*> pure (milliseconds diff) <*> classify (classifiers args) stdout'

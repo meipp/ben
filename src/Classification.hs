@@ -1,7 +1,5 @@
 module Classification where
 
-import Measurement
-
 import System.Process
 import System.Exit
 import System.IO (hPutStr, hClose)
@@ -21,7 +19,7 @@ classifications' classifiers input = fmap join $ forM classifiers $ \(name, cmd)
     result <- classifyOne (shell cmd) input
     return $ if result then [name] else []
 
-classify :: [(String, String)] -> Measurement -> IO Measurement
-classify classifiers measurement = do
-    classes <- classifications' classifiers (stdout measurement)
-    return $ measurement { classifications = classes }
+classify :: [(String, String)] -> String -> IO [String]
+classify classifiers stdout = do
+    classes <- classifications' classifiers stdout
+    return $ classes
