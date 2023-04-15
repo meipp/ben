@@ -20,13 +20,14 @@ analyze :: [String] -> [Measurement] -> IO ()
 analyze classifiers measurements = do
     let rs = map (\ms -> report (program (head ms)) ms) byProgram -- ++ [report "All" measurements]
     let table = Table {
-        header = [
-            leftAligned "Program" program',
-            rightAligned "Time" (showDecimal . time'),
-            rightAligned "Errors" (show . errors'),
-            rightAligned "Timeouts" (show . timeouts')
-            ] ++ map (\c -> rightAligned c (\r -> "?")) classifiers
-            ,
+        header =
+            [leftAligned "Program" program']
+            ++ map (\c -> rightAligned c (\r -> show (fromMaybe 0 (c `lookup` classifications' r)))) classifiers ++
+            [
+                rightAligned "Timeouts" (show . timeouts'),
+                rightAligned "Errors" (show . errors'),
+                rightAligned "Time (ms)" (show . time')
+            ],
         rows = [Header, HLine] ++ map Row rs
         }
     putStr (renderTable table)
