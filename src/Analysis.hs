@@ -19,19 +19,17 @@ data Report = Report {
 analyze :: [String] -> [Measurement] -> IO ()
 analyze classifiers measurements = do
     let rs = map (\ms -> report (program (head ms)) ms) byProgram -- ++ [report "All" measurements]
-    let header = [
-            ColumnDescription "Program" L,
-            ColumnDescription "Time" R,
-            ColumnDescription "Errors" R,
-            ColumnDescription "Timeouts" R
-            ] ++ map (\c -> ColumnDescription c R) classifiers
-    let table = makeTable header (map (\r -> [
-                program' r,
-                showDecimal (time' r),
-                show (errors' r),
-                show (timeouts' r)
-                ] ++ map (\c -> show (fromMaybe 0 (c `lookup` classifications' r))) classifiers) rs)
-    printTable (array1d (map alignment header)) table
+    let table = Table {
+        header = [
+            leftAligned "Program" program',
+            rightAligned "Time" (showDecimal . time'),
+            rightAligned "Errors" (show . errors'),
+            rightAligned "Timeouts" (show . timeouts')
+            ] ++ map (\c -> rightAligned c (\r -> "?")) classifiers
+            ,
+        rows = [Header, HLine] ++ map Row rs
+        }
+    putStr (renderTable table)
     where
         byProgram :: [[Measurement]]
         byProgram = groupBy ((==) `on` program) $ sortOn program $ measurements
