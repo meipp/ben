@@ -26,12 +26,15 @@ data Measurement = Measurement {
     status :: Status,
     stdout :: String,
     stderr :: String,
-    time :: Double,
+    time :: Int,
     classifications :: [String]
     } deriving (Show, Generic, ToJSON)
 
 seconds :: Int
 seconds = 1000000
+
+milliseconds :: NominalDiffTime -> Int
+milliseconds = round . (* 1000)
 
 measureCommand :: (String, String) -> FilePath -> IO Measurement
 -- TODO filenames containing spaces etc
@@ -48,4 +51,4 @@ measureCommand (name, cmd) file = do
         case result of
             Left ()             -> Timeout
             Right ExitSuccess     -> Success
-            Right (ExitFailure n) -> Failure n) <*> hGetContents' stdout <*> hGetContents' stderr <*> pure diff <*> pure []
+            Right (ExitFailure n) -> Failure n) <*> hGetContents' stdout <*> hGetContents' stderr <*> pure (milliseconds diff) <*> pure []

@@ -10,7 +10,7 @@ import Tables
 
 data Report = Report {
     program' :: String,
-    time' :: Double,
+    time' :: Int,
     errors' :: Int,
     timeouts' :: Int,
     classifications' :: [(String, Int)]
@@ -48,7 +48,3 @@ report label measurements = Report {
 
 count :: Ord a => [a] -> [(a, Int)]
 count = map (\xs -> (head xs, length xs)) . group . sort
-
--- TODO
-showDecimal :: Double -> String
-showDecimal x = showFFloat Nothing x ""
