@@ -12,8 +12,8 @@ ben \
 ```
 The produced output will look something like this:
 ```
-| Program |        Time | Errors | Timeouts | sat | unsat |
-|---------|-------------|--------|----------|-----|-------|
-| cvc4    | 2.101490996 |      0 |        1 |   4 |     3 |
-| z3      | 0.189522622 |      0 |        0 |   4 |     4 |
+| Program | Sat | Unsat | Timeouts | Errors | Time (ms) |
+|---------|-----|-------|----------|--------|-----------|
+| cvc4    |   4 |     3 |        1 |      0 |      2089 |
+| z3      |   4 |     4 |        0 |      0 |       187 |
 ```
