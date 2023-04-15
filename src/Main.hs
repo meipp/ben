@@ -11,10 +11,10 @@ import Data.Aeson (encode)
 import qualified Data.ByteString.Lazy as BL (putStr)
 import System.Directory.PathWalk
 
-benchmark :: [(String, String)] -> FilePath -> [(String, String)] -> IO ()
-benchmark commands files classifiers = do
+benchmark :: CmdLineArgs -> [(String, String)] -> FilePath -> [(String, String)] -> IO ()
+benchmark args commands files classifiers = do
     fs <- find files
-    measurements <- mapM (uncurry measureCommand) [(c, f) | c <- commands, f <- fs]
+    measurements <- mapM (uncurry (measureCommand args)) [(c, f) | c <- commands, f <- fs]
     ms <- mapM (classify classifiers) measurements
     -- BL.putStr (encode ms)
     analyze (map fst classifiers) ms
@@ -29,5 +29,5 @@ main :: IO ()
 main = parseArgs >>= run
 
 run :: CmdLineArgs -> IO ()
-run CmdLineArgs{programs, files, classifiers} = do
-    benchmark programs files classifiers
+run args@CmdLineArgs{programs, files, classifiers, timeoutMicroseconds} = do
+    benchmark args programs files classifiers

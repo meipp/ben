@@ -3,6 +3,8 @@
 
 module Measurement where
 
+import CmdLine
+
 import System.Process
 import System.Exit
 import System.IO (hGetContents')
@@ -30,18 +32,15 @@ data Measurement = Measurement {
     classifications :: [String]
     } deriving (Show, Generic, ToJSON)
 
-seconds :: Int
-seconds = 1000000
-
 milliseconds :: NominalDiffTime -> Int
 milliseconds = round . (* 1000)
 
-measureCommand :: (String, String) -> FilePath -> IO Measurement
+measureCommand :: CmdLineArgs -> (String, String) -> FilePath -> IO Measurement
 -- TODO filenames containing spaces etc
-measureCommand (name, cmd) file = do
+measureCommand args (name, cmd) file = do
     start <- getCurrentTime
     (_, Just stdout, Just stderr, p) <- createProcess (shell (cmd ++ " " ++ file)) { std_out = CreatePipe, std_err = CreatePipe }
-    result <- race (threadDelay (2*seconds)) (waitForProcess p)
+    result <- race (threadDelay (timeoutMicroseconds args)) (waitForProcess p)
     end <- getCurrentTime
     let diff = realToFrac (diffUTCTime end start)
 

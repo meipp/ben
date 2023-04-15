@@ -8,12 +8,13 @@ cd examples/string-solving
 ben \
     -s ./test-instances \
     -p cvc4 -p z3 \
-    -c "sat: grep ^sat$" -c "unsat: grep ^unsat$"
+    -c "Sat: grep ^sat$" -c "Unsat: grep ^unsat$" \
+    -t 20
 ```
 The produced output will look something like this:
 ```
 | Program | Sat | Unsat | Timeouts | Errors | Time (ms) |
 |---------|-----|-------|----------|--------|-----------|
-| cvc4    |   4 |     3 |        1 |      0 |      2089 |
-| z3      |   4 |     4 |        0 |      0 |       187 |
+| cvc4    |   4 |     3 |        1 |      0 |     20106 |
+| z3      |   4 |     4 |        0 |      0 |       195 |
 ```

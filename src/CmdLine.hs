@@ -1,11 +1,14 @@
 module CmdLine where
 
+import Control.Monad (when)
+import Data.Fixed (Fixed, E6)
 import Options.Applicative
 
 data CmdLineArgs = CmdLineArgs {
     programs :: [(String, String)],
     files :: FilePath,
-    classifiers :: [(String, String)]
+    classifiers :: [(String, String)],
+    timeoutMicroseconds :: Int
     } deriving (Show)
 
 parser :: Parser CmdLineArgs
@@ -28,6 +31,7 @@ parser = CmdLineArgs
     <> metavar "CMD"
     <> help "Classifier command")
     ))
+    <*> option parseMicroseconds (long "timeout" <> short 't' <> metavar "SECONDS" <> help "Timeout in seconds (default: 60)" <> value 60000000)
 
 parseLabeledCommand :: String -> (String, String)
 parseLabeledCommand s =
@@ -35,6 +39,12 @@ parseLabeledCommand s =
     case break (== ':') s of
       (cmd, "") -> (cmd, cmd)
       (name, (':' : cmd)) -> (name, dropWhile (== ' ') cmd)
+
+parseMicroseconds :: ReadM Int
+parseMicroseconds = do
+    t <- (auto :: ReadM (Fixed E6))
+    when (t <= 0) (fail "Timeout must be positive")
+    return (round (t * 1000000))
 
 parseArgs :: IO CmdLineArgs
 parseArgs = execParser opts
