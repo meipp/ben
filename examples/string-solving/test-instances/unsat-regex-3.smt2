@@ -10,4 +10,4 @@
 ; Y: /a|b*/
 ; Xb = YX
 
-; cvc5 hangs up
+; cvc4 hangs up
