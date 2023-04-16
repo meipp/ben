@@ -5,6 +5,7 @@ module ProgressBar where
 import Control.Monad (forM, when)
 import System.IO (hFlush, stdout)
 import Prelude hiding (init)
+import UnliftIO.Async
 
 displayLine :: Bool -> String -> IO ()
 displayLine True  s = putStr ("\r" ++ s) >> hFlush stdout
@@ -51,3 +52,12 @@ forMProgress xs f = do
     let n = length xs
     let progress = progressBar True True "" "" n 40
     withProgress progress xs f
+
+parallelizeWithProgressBar :: Int -> (a -> IO b) -> [a] -> IO [b]
+parallelizeWithProgressBar j f xs = do
+    let n = length xs
+    let progress = progressBar True True "" "" n 40
+    init progress
+    ys <- pooledMapConcurrentlyN j (\(i, x) -> progress `display` i >> f x) (zip [0..] xs)
+    close progress
+    return ys

@@ -6,7 +6,6 @@ import Measurement (measureCommand)
 import Analysis
 import CmdLine
 import ProgressBar
-import UnliftIO.Async
 import Data.Aeson (encode)
 import qualified Data.ByteString.Lazy as BL (putStr)
 import System.Directory.PathWalk
@@ -15,7 +14,7 @@ benchmark :: CmdLineArgs -> [(String, String)] -> FilePath -> [(String, String)]
 benchmark args commands files classifiers = do
     fs <- find files
     -- measurements <- mapM (uncurry (measureCommand args)) [(c, f) | c <- commands, f <- fs]
-    measurements <- pooledMapConcurrentlyN (jobs args) (uncurry (measureCommand args)) [(c, f) | c <- commands, f <- fs]
+    measurements <- parallelizeWithProgressBar (jobs args) (uncurry (measureCommand args)) [(c, f) | c <- commands, f <- fs]
     -- BL.putStr (encode ms)
     analyze (map fst classifiers) measurements
 
