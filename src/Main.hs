@@ -3,9 +3,7 @@
 module Main (main) where
 
 import Measurement (measureCommand)
-import Classification
 import Analysis
-import Tables
 import CmdLine
 import ProgressBar
 import UnliftIO.Async
@@ -25,11 +23,11 @@ benchmark args commands files classifiers = do
 find :: FilePath -> IO [FilePath]
 find dir = do
     fs <- pathWalkLazy dir
-    return $ fs >>= \(d, _, fs) -> map ((d ++ "/") ++) fs
+    return $ fs >>= \(d, _, fs') -> map ((d ++ "/") ++) fs'
 
 main :: IO ()
 main = parseArgs >>= run
 
 run :: CmdLineArgs -> IO ()
-run args@CmdLineArgs{programs, files, classifiers, timeoutMicroseconds} = do
+run args@CmdLineArgs{programs, files, classifiers} = do
     benchmark args programs files classifiers
