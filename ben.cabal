@@ -28,7 +28,8 @@ executable ben
                        optparse-applicative,
                        pathwalk,
                        process,
-                       time
+                       time,
+                       unliftio >= 0.2.10
   ghc-options:         -Wall
                        -Wcompat
                        -Widentities

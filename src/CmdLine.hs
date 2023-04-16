@@ -8,6 +8,7 @@ data CmdLineArgs = CmdLineArgs {
     programs :: [(String, String)],
     files :: FilePath,
     classifiers :: [(String, String)],
+    jobs :: Int,
     timeoutMicroseconds :: Int
     } deriving (Show)
 
@@ -31,6 +32,7 @@ parser = CmdLineArgs
     <> metavar "CMD"
     <> help "Classifier command")
     ))
+    <*> parseJobs
     <*> option parseMicroseconds (long "timeout" <> short 't' <> metavar "SECONDS" <> help "Timeout in seconds (default: 60)" <> value 60000000)
 
 parseLabeledCommand :: String -> (String, String)
@@ -45,6 +47,16 @@ parseMicroseconds = do
     t <- (auto :: ReadM (Fixed E6))
     when (t <= 0) (fail "Timeout must be positive")
     return (round (t * 1000000))
+
+parseJobs :: Parser Int
+parseJobs = option (do
+        j <- auto :: ReadM Int
+        when (j <= 0)
+            (fail "Number of jobs must be positive")
+        return j
+    ) (
+    long "jobs" <> short 'j' <> metavar "N" <> help "Number of processes to run in parallel" <> value 1
+    )
 
 parseArgs :: IO CmdLineArgs
 parseArgs = execParser opts
