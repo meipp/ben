@@ -40,7 +40,8 @@ measureCommand :: CmdLineArgs -> (String, String) -> FilePath -> IO Measurement
 -- TODO filenames containing spaces etc
 measureCommand args (name, cmd) file = do
     start <- getCurrentTime
-    (_, Just stdout, Just stderr, p) <- createProcess (shell (cmd ++ " " ++ file)) { std_out = CreatePipe, std_err = CreatePipe }
+    let command = cmd ++ " " ++ file
+    (_, Just stdout, Just stderr, p) <- createProcess (shell command) { std_out = CreatePipe, std_err = CreatePipe }
     result <- race (threadDelay (timeoutMicroseconds args)) (waitForProcess p)
     end <- getCurrentTime
     let diff = realToFrac (diffUTCTime end start)
@@ -48,7 +49,7 @@ measureCommand args (name, cmd) file = do
     when (result == Left ()) (terminateProcess p)
 
     stdout' <- hGetContents' stdout
-    Measurement name (cmd ++ " " ++ file) <$> pure (
+    Measurement name command <$> pure (
         case result of
             Left ()             -> Timeout
             Right ExitSuccess     -> Success
