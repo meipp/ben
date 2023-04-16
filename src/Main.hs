@@ -1,5 +1,3 @@
-{-# LANGUAGE NamedFieldPuns #-}
-
 module Main (main) where
 
 import Measurement (measureCommand)

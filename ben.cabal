@@ -20,6 +20,7 @@ executable ben
                        Tables,
                        CmdLine
   default-language:    Haskell2010
+  default-extensions:  NamedFieldPuns
   build-depends:       aeson,
                        array,
                        async >= 2.2 && < 3,

@@ -1,5 +1,3 @@
-{-# LANGUAGE NamedFieldPuns #-}
-
 module ProgressBar where
 
 import Control.Monad (forM, when)
