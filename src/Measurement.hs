@@ -31,26 +31,47 @@ data Measurement = Measurement {
     stderr :: String,
     time :: Int,
     classifications :: [String]
-    } deriving (Show, Generic, ToJSON)
+} deriving (Show, Generic, ToJSON)
 
 milliseconds :: NominalDiffTime -> Int
 milliseconds = round . (* 1000)
 
+timeIO :: IO a -> IO (NominalDiffTime, a)
+timeIO action = do
+    start <- getCurrentTime
+    x <- action
+    end <- getCurrentTime
+    let diff = diffUTCTime end start
+    return (diff, x)
+
+runCommandWithTimeout :: Int -> String -> IO (Status, String, String)
+runCommandWithTimeout timeoutMicroseconds cmd = do
+    (_, Just stdout, Just stderr, p) <- createProcess (shell cmd) { std_out = CreatePipe, std_err = CreatePipe }
+    result <- race (threadDelay timeoutMicroseconds) (waitForProcess p)
+    when (result == Left ()) (terminateProcess p)
+    stdout' <- hGetContents' stdout
+    stderr' <- hGetContents' stderr
+
+    let status = case result of
+            Left () -> Timeout
+            Right ExitSuccess -> Success
+            Right (ExitFailure n) -> Failure n
+
+    return (status, stdout', stdout')
+
 measureCommand :: CmdLineArgs -> (String, String) -> FilePath -> IO Measurement
 -- TODO filenames containing spaces etc
 measureCommand args (name, cmd) file = do
-    start <- getCurrentTime
     let command = cmd ++ " " ++ file
-    (_, Just stdout, Just stderr, p) <- createProcess (shell command) { std_out = CreatePipe, std_err = CreatePipe }
-    result <- race (threadDelay (timeoutMicroseconds args)) (waitForProcess p)
-    end <- getCurrentTime
-    let diff = realToFrac (diffUTCTime end start)
+    (diff, (status, stdout, stderr)) <- timeIO $ runCommandWithTimeout (timeoutMicroseconds args) command
+    classifications <- classify (classifiers args) stdout
 
-    when (result == Left ()) (terminateProcess p)
-
-    stdout' <- hGetContents' stdout
-    Measurement name command <$> pure (
-        case result of
-            Left ()             -> Timeout
-            Right ExitSuccess     -> Success
-            Right (ExitFailure n) -> Failure n) <*> pure stdout' <*> hGetContents' stderr <*> pure (milliseconds diff) <*> classify (classifiers args) stdout'
+    return $ Measurement{
+            program=name,
+            command,
+            status,
+            stdout,
+            stderr,
+            time=milliseconds diff,
+            classifications
+        }
