@@ -10,30 +10,15 @@ data CmdLineArgs = CmdLineArgs {
     classifiers :: [(String, String)],
     jobs :: Int,
     timeoutMicroseconds :: Int
-    } deriving (Show)
+} deriving (Show)
 
 parser :: Parser CmdLineArgs
 parser = CmdLineArgs
-    <$> some (parseLabeledCommand <$> strOption
-    (long "program"
-    <> short 'p'
-    <> metavar "CMD"
-    <> help "Program to benchmark")
-    )
-    <*> ( strOption
-    (long "source"
-    <> short 's'
-    <> metavar "PATH"
-    <> help "Location of the test instances")
-    )
-    <*> many (fmap parseLabeledCommand (strOption
-    (long "classifier"
-    <> short 'c'
-    <> metavar "CMD"
-    <> help "Classifier command")
-    ))
+    <$> parsePrograms
+    <*> parseSource
+    <*> parseClassifiers
     <*> parseJobs
-    <*> option parseMicroseconds (long "timeout" <> short 't' <> metavar "SECONDS" <> help "Timeout in seconds (default: 60)" <> value 60000000)
+    <*> parseTimeout
 
 parseLabeledCommand :: String -> (String, String)
 parseLabeledCommand s =
@@ -42,20 +27,40 @@ parseLabeledCommand s =
       (cmd, "") -> (cmd, cmd)
       (name, (':' : cmd)) -> (name, dropWhile (== ' ') cmd)
 
+positiveNumber :: (Read a, Num a, Ord a) => ReadM a
+positiveNumber = do
+    x <- auto
+    when (x <= 0) (fail "must be positive")
+    return x
+
 parseMicroseconds :: ReadM Int
 parseMicroseconds = do
-    t <- (auto :: ReadM (Fixed E6))
-    when (t <= 0) (fail "Timeout must be positive")
+    t <- positiveNumber :: ReadM (Fixed E6)
     return (round (t * 1000000))
 
+parsePrograms :: Parser [(String, String)]
+parsePrograms = some (parseLabeledCommand <$> strOption (
+        long "program" <> short 'p' <> metavar "CMD" <> help "Program to benchmark"
+    ))
+
+parseSource :: Parser FilePath
+parseSource = strOption (
+        long "source" <> short 's' <> metavar "PATH" <> help "Location of the test instances"
+    )
+
+parseClassifiers :: Parser [(String, String)]
+parseClassifiers = many (parseLabeledCommand <$> (strOption (
+        long "classifier" <> short 'c' <> metavar "CMD" <> help "Classifier command")
+    ))
+
 parseJobs :: Parser Int
-parseJobs = option (do
-        j <- auto :: ReadM Int
-        when (j <= 0)
-            (fail "Number of jobs must be positive")
-        return j
-    ) (
-    long "jobs" <> short 'j' <> metavar "N" <> help "Number of processes to run in parallel" <> value 1
+parseJobs = option positiveNumber (
+        long "jobs" <> short 'j' <> metavar "N" <> help "Number of processes to run in parallel" <> value 1
+    )
+
+parseTimeout :: Parser Int
+parseTimeout = option parseMicroseconds (
+        long "timeout" <> short 't' <> metavar "SECONDS" <> help "Timeout in seconds (default: 60)" <> value 60000000
     )
 
 parseArgs :: IO CmdLineArgs
