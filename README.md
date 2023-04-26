@@ -1,7 +1,7 @@
 # ben - run benchmarks
 
 ## Example 1 - Fibonacci
-Suppose we have a fast fibonacci implementation (good.py) and a slow one (bad.py). We want to benchmark their performance on the inputs `10` (easy), `40` (bad.py will be slow here) and `100` (bad.py is going to timeout).
+Suppose we have a fast fibonacci implementation ([good.py](./examples/fibonacci/good.py)) and a slow one ([bad.py](./examples/fibonacci/bad.py)). We want to benchmark their performance on the inputs `10` (easy), `40` (bad.py will be slow here) and `100` (bad.py is going to timeout).
 
 We benchmark the programs `./good.py` and `./bad.py` on the input files in `./inputs/` with a timeout of `60` seconds for each program call.
 ```bash
