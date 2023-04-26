@@ -4,14 +4,13 @@
 Let's benchmark the two string solvers CVC4 and Z3 on the files in [examples/string-solving/test-instances](./examples/string-solving/test-instances) and count how often they output `sat` and `unsat`.
 
 ```bash
-cd examples/string-solving
 ben \
-    -s ./test-instances \
+    -s ./test-instances/ \
     -p cvc4 -p z3 \
     -c "Sat: grep ^sat$" -c "Unsat: grep ^unsat$" \
     -t 20
 ```
-The produced output will look something like this:
+The output will look something like this:
 ```
 | Program | Sat | Unsat | Timeouts | Errors | Time (ms) |
 |---------|-----|-------|----------|--------|-----------|
