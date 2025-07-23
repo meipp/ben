@@ -1,4 +1,6 @@
-module Classification where
+module Classification (
+    classify,
+) where
 
 import System.Process
 import System.Exit

@@ -1,4 +1,11 @@
-module Tables where
+module Tables (
+    RowDescriptor(..),
+    Table(..),
+    centered,
+    leftAligned,
+    renderTable,
+    rightAligned,
+) where
 
 import Data.Array
 import Data.List (intercalate)

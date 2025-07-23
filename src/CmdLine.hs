@@ -1,4 +1,7 @@
-module CmdLine where
+module CmdLine (
+    CmdLineArgs(..),
+    parseArgs,
+) where
 
 import Control.Monad (when)
 import Data.Fixed (Fixed, E6)

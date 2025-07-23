@@ -1,4 +1,6 @@
-module ProgressBar where
+module ProgressBar (
+    parallelizeWithProgressBar,
+) where
 
 import Control.Monad (forM, when)
 import System.IO (hFlush, stdout)

@@ -1,4 +1,6 @@
-module Analysis where
+module Analysis (
+    analyze,
+) where
 
 import Measurement
 import Data.Function (on)

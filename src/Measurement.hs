@@ -1,7 +1,11 @@
 {-# LANGUAGE DeriveGeneric  #-}
 {-# LANGUAGE DeriveAnyClass #-}
 
-module Measurement where
+module Measurement (
+    Measurement(..),
+    Status(..),
+    measureCommand,
+) where
 
 import CmdLine
 import Classification
