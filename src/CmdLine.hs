@@ -29,10 +29,11 @@ parser = CmdLineArgs
 
 parseLabeledCommand :: String -> Labeled String
 parseLabeledCommand s =
-    -- TODO
     case break (== ':') s of
       (cmd, "") -> (cmd, cmd)
-      (name, (':' : cmd)) -> (name, dropWhile (== ' ') cmd)
+      (name, ':' : cmd) -> (name, dropWhile (== ' ') cmd)
+      -- Unreachable
+      _ -> undefined
 
 positiveNumber :: (Read a, Num a, Ord a) => ReadM a
 positiveNumber = do
