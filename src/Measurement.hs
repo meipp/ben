@@ -57,7 +57,7 @@ runCommandWithTimeout timeoutMicroseconds cmd = do
             Right ExitSuccess -> Success
             Right (ExitFailure n) -> Failure n
 
-    return (status, stdout', stdout')
+    return (status, stdout', stderr')
 
 measureCommand :: CmdLineArgs -> (String, String) -> FilePath -> IO Measurement
 -- TODO filenames containing spaces etc
