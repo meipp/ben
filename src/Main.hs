@@ -8,11 +8,11 @@ import Data.Aeson (encode)
 import qualified Data.ByteString.Lazy as BL (putStr)
 import System.Directory.PathWalk
 
-benchmark :: CmdLineArgs -> [Labeled String] -> FilePath -> [Labeled String] -> IO ()
-benchmark args commands files classifiers = do
+benchmark :: CmdLineArgs -> IO ()
+benchmark args@CmdLineArgs{programs=commands, files, classifiers, jobs} = do
     fs <- find files
     -- measurements <- mapM (uncurry (measureCommand args)) [(c, f) | c <- commands, f <- fs]
-    measurements <- parallelizeWithProgressBar (jobs args) (uncurry (measureCommand args)) [(c, f) | c <- commands, f <- fs]
+    measurements <- parallelizeWithProgressBar jobs (uncurry (measureCommand args)) [(c, f) | c <- commands, f <- fs]
     -- BL.putStr (encode ms)
     analyze (map fst classifiers) measurements
 
@@ -23,8 +23,4 @@ find dir = do
     return $ fs >>= \(d, _, fs') -> map ((d ++ "/") ++) fs'
 
 main :: IO ()
-main = parseArgs >>= run
-
-run :: CmdLineArgs -> IO ()
-run args@CmdLineArgs{programs, files, classifiers} = do
-    benchmark args programs files classifiers
+main = parseArgs >>= benchmark
