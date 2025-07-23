@@ -48,16 +48,20 @@ runCommandWithTimeout :: Int -> String -> IO (Status, String, String)
 runCommandWithTimeout timeoutMicroseconds cmd = do
     (_, Just stdout, Just stderr, p) <- createProcess (shell cmd) { std_out = CreatePipe, std_err = CreatePipe }
     result <- race (threadDelay timeoutMicroseconds) (waitForProcess p)
-    when (result == Left ()) (terminateProcess p)
-    stdout' <- hGetContents' stdout
-    stderr' <- hGetContents' stderr
 
     let status = case result of
             Left () -> Timeout
             Right ExitSuccess -> Success
             Right (ExitFailure n) -> Failure n
 
-    return (status, stdout', stderr')
+    case status of
+        Timeout -> do
+            terminateProcess p
+            return (status, "", "")
+        _ -> do
+            stdout' <- hGetContents' stdout
+            stderr' <- hGetContents' stderr
+            return (status, stdout', stderr')
 
 measureCommand :: CmdLineArgs -> (String, String) -> FilePath -> IO Measurement
 -- TODO filenames containing spaces etc
