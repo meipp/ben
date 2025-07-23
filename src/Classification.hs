@@ -6,6 +6,7 @@ import System.Process
 import System.Exit
 import System.IO (hPutStr, hClose)
 import Control.Monad (forM, join)
+import CmdLine (Labeled)
 
 classifyOne :: CreateProcess -> String -> IO Bool
 classifyOne cmd input = do
@@ -16,7 +17,7 @@ classifyOne cmd input = do
     hClose stdout
     return $ result == ExitSuccess
 
-classify :: [(String, String)] -> String -> IO [String]
+classify :: [Labeled String] -> String -> IO [String]
 classify classifiers input = fmap join $ forM classifiers $ \(name, cmd) -> do
     result <- classifyOne (shell cmd) input
     return $ if result then [name] else []

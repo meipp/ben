@@ -67,7 +67,7 @@ runCommandWithTimeout timeoutMicroseconds cmd = do
             stderr' <- hGetContents' stderr
             return (status, stdout', stderr')
 
-measureCommand :: CmdLineArgs -> (String, String) -> FilePath -> IO Measurement
+measureCommand :: CmdLineArgs -> Labeled String -> FilePath -> IO Measurement
 -- TODO filenames containing spaces etc
 measureCommand args (name, cmd) file = do
     let command = cmd ++ " " ++ file
