@@ -2,7 +2,7 @@ module ProgressBar (
     parallelizeWithProgressBar,
 ) where
 
-import Control.Monad (forM, when)
+import Control.Monad (when)
 import System.IO (hFlush, stdout)
 import Prelude hiding (init)
 import UnliftIO.Async
@@ -23,11 +23,11 @@ progressBar redraw hideOnClose prefix suffix n w = ProgressBar{
             when (redraw && not hideOnClose) (putStr "\n")
     }
     where
-        render i = renderBar prefix suffix n w i
+        render = renderBar prefix suffix n w
         display i = displayLine redraw (render i)
 
 renderBar :: String -> String -> Int -> Int -> Int -> String
-renderBar prefix suffix n w i = (prefix +++ bar +++ suffix)
+renderBar prefix suffix n w i = prefix +++ bar +++ suffix
     where
         bar
             | n == 0    = "[" ++ replicate w '0' ++ "] " ++ show i ++ "/" ++ show n
@@ -39,19 +39,6 @@ renderBar prefix suffix n w i = (prefix +++ bar +++ suffix)
         "" +++ x = x
         x +++ "" = x
         x +++  y = x ++ " " ++ y
-
-withProgress :: ProgressBar -> [a] -> (a -> IO b) -> IO ([b])
-withProgress progress xs f = do
-    init progress
-    ys <- forM (zip [0..] xs) $ \(i, x) -> progress `display` i >> f x
-    close progress
-    return ys
-
-forMProgress :: [a] -> (a -> IO b) -> IO ([b])
-forMProgress xs f = do
-    let n = length xs
-    let progress = progressBar True True "" "" n 40
-    withProgress progress xs f
 
 parallelizeWithProgressBar :: Int -> (a -> IO b) -> [a] -> IO [b]
 parallelizeWithProgressBar j f xs = do
