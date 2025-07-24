@@ -1,12 +1,12 @@
 module Main (main) where
 
 import Measurement (measureCommand)
-import Analysis
+import Analysis (analyze)
 import CmdLine
-import ProgressBar
+import ProgressBar (parallelizeWithProgressBar)
 import Data.Aeson (encode, ToJSON)
 import qualified Data.ByteString.Lazy as BL (putStr)
-import System.Directory.PathWalk
+import System.Directory.PathWalk (pathWalkLazy)
 import System.Directory (doesFileExist)
 import System.FilePath ((</>))
 import Control.Monad (when)
