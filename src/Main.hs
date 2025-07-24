@@ -12,7 +12,8 @@ import System.FilePath ((</>))
 import Control.Monad (when)
 
 benchmark :: CmdLineArgs -> IO ()
-benchmark args@CmdLineArgs{programs=commands, files, classifiers, jobs, jsonExport} = do
+benchmark args@CmdLineArgs{programs, files, classifiers, jobs, jsonExport, repetitions} = do
+    let commands = concat $ replicate repetitions programs
     fs <- find' files
     -- measurements <- mapM (uncurry (measureCommand args)) [(c, f) | c <- commands, f <- fs]
     measurements <- parallelizeWithProgressBar jobs (uncurry (measureCommand args)) [(c, f) | c <- commands, f <- fs]

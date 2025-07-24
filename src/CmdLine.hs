@@ -14,7 +14,8 @@ data CmdLineArgs = CmdLineArgs {
     classifiers :: [Labeled String],
     jobs :: Int,
     timeoutMicroseconds :: Int,
-    jsonExport :: Bool
+    jsonExport :: Bool,
+    repetitions :: Int
 } deriving (Show)
 
 -- Type alias for an a value with an assigned name
@@ -28,6 +29,7 @@ parser = CmdLineArgs
     <*> parseJobs
     <*> parseTimeout
     <*> parseJSONExport
+    <*> parseRepetitions
 
 parseLabeledCommand :: String -> Labeled String
 parseLabeledCommand s =
@@ -76,6 +78,11 @@ parseTimeout = option parseMicroseconds (
 parseJSONExport :: Parser Bool
 parseJSONExport = switch (
         long "json" <> short 'J' <> help "Show report in JSON format"
+    )
+
+parseRepetitions :: Parser Int
+parseRepetitions = option positiveNumber (
+        long "repetitions" <> short 'r' <> metavar "N" <> help "Number of times to repeat running each program on each input" <> value 1
     )
 
 parseArgs :: IO CmdLineArgs
