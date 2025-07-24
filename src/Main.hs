@@ -4,7 +4,7 @@ import Measurement (measureCommand)
 import Analysis
 import CmdLine
 import ProgressBar
-import Data.Aeson (encode)
+import Data.Aeson (encode, ToJSON)
 import qualified Data.ByteString.Lazy as BL (putStr)
 import System.Directory.PathWalk
 import System.Directory (doesFileExist)
@@ -18,9 +18,12 @@ benchmark args@CmdLineArgs{programs=commands, files, classifiers, jobs, jsonExpo
     measurements <- parallelizeWithProgressBar jobs (uncurry (measureCommand args)) [(c, f) | c <- commands, f <- fs]
     analyze (map fst classifiers) measurements
 
-    when jsonExport $ do
-        BL.putStr (encode measurements)
-        putStrLn ""
+    when jsonExport $ printJSON measurements
+
+printJSON :: ToJSON a => a -> IO ()
+printJSON x = do
+    BL.putStr (encode x)
+    putStrLn ""
 
 -- recursively enumerates directory
 find :: FilePath -> IO [FilePath]
