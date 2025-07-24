@@ -8,14 +8,14 @@ module Measurement (
 ) where
 
 import CmdLine
-import Classification
+import Classification (classify)
 
 import System.Process
-import System.Exit
-import System.IO (hGetContents')
+import System.Exit (ExitCode(..))
+import System.IO (hGetContents', hClose)
 import Data.Time
-import Control.Concurrent
-import Control.Concurrent.Async
+import Control.Concurrent (threadDelay)
+import Control.Concurrent.Async (race)
 import GHC.Generics (Generic)
 import Data.Aeson (toJSON, ToJSON)
 
@@ -44,8 +44,7 @@ timeIO action = do
     start <- getCurrentTime
     x <- action
     end <- getCurrentTime
-    let diff = diffUTCTime end start
-    return (diff, x)
+    return (diffUTCTime end start, x)
 
 runCommandWithTimeout :: Int -> String -> IO (Status, String, String)
 runCommandWithTimeout timeoutMicroseconds cmd = do
