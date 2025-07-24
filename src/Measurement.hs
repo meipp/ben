@@ -59,6 +59,9 @@ runCommandWithTimeout timeoutMicroseconds cmd = do
     case status of
         Timeout -> do
             terminateProcess p
+            hClose stdout
+            hClose stderr
+            -- cannot read 'stdout' and 'stderr' on 'Timeout', because 'hGetContents' hangs up
             return (status, "", "")
         _ -> do
             stdout' <- hGetContents' stdout
