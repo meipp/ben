@@ -10,7 +10,7 @@ import Options.Applicative
 
 data CmdLineArgs = CmdLineArgs {
     programs :: [Labeled String],
-    files :: FilePath,
+    files :: [FilePath],
     classifiers :: [Labeled String],
     jobs :: Int,
     timeoutMicroseconds :: Int,
@@ -23,7 +23,7 @@ type Labeled a = (String, a)
 parser :: Parser CmdLineArgs
 parser = CmdLineArgs
     <$> parsePrograms
-    <*> parseSource
+    <*> parseSources
     <*> parseClassifiers
     <*> parseJobs
     <*> parseTimeout
@@ -53,10 +53,10 @@ parsePrograms = some (parseLabeledCommand <$> strOption (
         long "program" <> short 'p' <> metavar "CMD" <> help "Program to benchmark"
     ))
 
-parseSource :: Parser FilePath
-parseSource = strOption (
+parseSources :: Parser [FilePath]
+parseSources = some (strOption (
         long "source" <> short 's' <> metavar "PATH" <> help "Location of the test instances"
-    )
+    ))
 
 parseClassifiers :: Parser [Labeled String]
 parseClassifiers = many (parseLabeledCommand <$> strOption (

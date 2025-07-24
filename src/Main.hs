@@ -7,11 +7,13 @@ import ProgressBar
 import Data.Aeson (encode)
 import qualified Data.ByteString.Lazy as BL (putStr)
 import System.Directory.PathWalk
+import System.Directory (doesFileExist)
+import System.FilePath ((</>))
 import Control.Monad (when)
 
 benchmark :: CmdLineArgs -> IO ()
 benchmark args@CmdLineArgs{programs=commands, files, classifiers, jobs, jsonExport} = do
-    fs <- find files
+    fs <- find' files
     -- measurements <- mapM (uncurry (measureCommand args)) [(c, f) | c <- commands, f <- fs]
     measurements <- parallelizeWithProgressBar jobs (uncurry (measureCommand args)) [(c, f) | c <- commands, f <- fs]
     analyze (map fst classifiers) measurements
@@ -22,9 +24,16 @@ benchmark args@CmdLineArgs{programs=commands, files, classifiers, jobs, jsonExpo
 
 -- recursively enumerates directory
 find :: FilePath -> IO [FilePath]
-find dir = do
-    fs <- pathWalkLazy dir
-    return $ fs >>= \(d, _, fs') -> map ((d ++ "/") ++) fs'
+find path = do
+    isFile <- doesFileExist path
+    if isFile then
+        return [path]
+    else do
+            fs <- pathWalkLazy path
+            return $ concatMap (\(d, _, fs') -> (</>) <$> [d] <*> fs') fs
+
+find' :: [FilePath] -> IO [FilePath]
+find' paths = concat <$> mapM find paths
 
 main :: IO ()
 main = parseArgs >>= benchmark
