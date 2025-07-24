@@ -13,7 +13,8 @@ data CmdLineArgs = CmdLineArgs {
     files :: FilePath,
     classifiers :: [Labeled String],
     jobs :: Int,
-    timeoutMicroseconds :: Int
+    timeoutMicroseconds :: Int,
+    jsonExport :: Bool
 } deriving (Show)
 
 -- Type alias for an a value with an assigned name
@@ -26,6 +27,7 @@ parser = CmdLineArgs
     <*> parseClassifiers
     <*> parseJobs
     <*> parseTimeout
+    <*> parseJSONExport
 
 parseLabeledCommand :: String -> Labeled String
 parseLabeledCommand s =
@@ -69,6 +71,11 @@ parseJobs = option positiveNumber (
 parseTimeout :: Parser Int
 parseTimeout = option parseMicroseconds (
         long "timeout" <> short 't' <> metavar "SECONDS" <> help "Timeout in seconds (default: 60)" <> value 60000000
+    )
+
+parseJSONExport :: Parser Bool
+parseJSONExport = switch (
+        long "json" <> short 'J' <> help "Show report in JSON format"
     )
 
 parseArgs :: IO CmdLineArgs

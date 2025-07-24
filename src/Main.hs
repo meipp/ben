@@ -7,14 +7,18 @@ import ProgressBar
 import Data.Aeson (encode)
 import qualified Data.ByteString.Lazy as BL (putStr)
 import System.Directory.PathWalk
+import Control.Monad (when)
 
 benchmark :: CmdLineArgs -> IO ()
-benchmark args@CmdLineArgs{programs=commands, files, classifiers, jobs} = do
+benchmark args@CmdLineArgs{programs=commands, files, classifiers, jobs, jsonExport} = do
     fs <- find files
     -- measurements <- mapM (uncurry (measureCommand args)) [(c, f) | c <- commands, f <- fs]
     measurements <- parallelizeWithProgressBar jobs (uncurry (measureCommand args)) [(c, f) | c <- commands, f <- fs]
-    -- BL.putStr (encode ms)
     analyze (map fst classifiers) measurements
+
+    when jsonExport $ do
+        BL.putStr (encode measurements)
+        putStrLn ""
 
 -- recursively enumerates directory
 find :: FilePath -> IO [FilePath]
