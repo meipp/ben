@@ -1,7 +1,7 @@
 name:                ben
 version:             0.1.0.0
 homepage:            https://github.com/meipp/ben.git
-license:             BSD3
+license:             MIT
 license-file:        LICENSE
 author:              meipp
 copyright:           2023 meipp
