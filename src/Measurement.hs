@@ -69,10 +69,10 @@ runCommandWithTimeout timeoutMicroseconds cmd = do
 
 measureCommand :: CmdLineArgs -> Labeled String -> FilePath -> IO Measurement
 -- TODO filenames containing spaces etc
-measureCommand args (name, cmd) file = do
+measureCommand CmdLineArgs{classifiers, timeoutMicroseconds} (name, cmd) file = do
     let command = cmd ++ " " ++ file
-    (diff, (status, stdout, stderr)) <- timeIO $ runCommandWithTimeout (timeoutMicroseconds args) command
-    classifications <- classify (classifiers args) stdout
+    (diff, (status, stdout, stderr)) <- timeIO $ runCommandWithTimeout timeoutMicroseconds command
+    classifications <- classify classifiers stdout
 
     return $ Measurement{
             program=name,
