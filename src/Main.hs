@@ -11,6 +11,12 @@ import System.Directory (doesFileExist)
 import System.FilePath ((</>))
 import Control.Monad (when)
 
+-- | Perform a benchmark as described in 'CmdLineArgs'.
+--
+-- This runs all 'programs' on all 'files'.
+-- If 'jobs' > 1, this many calls will be run in parallel.
+-- If 'repetitions' > 1, the benchmark is re-run this many times.
+-- If 'jsonExport' is set, a JSON dump of all measurements will be printed.
 benchmark :: CmdLineArgs -> IO ()
 benchmark args@CmdLineArgs{programs, files, classifiers, jobs, jsonExport, repetitions} = do
     let commands = concat $ replicate repetitions programs
@@ -26,7 +32,12 @@ printJSON x = do
     BL.putStr (encode x)
     putStrLn ""
 
--- recursively enumerates directory
+-- | Recursively enumerates all files at a given directory subtree.
+--
+-- If @path@ is a regular file, only @[path]@ is returned.
+-- If @path@ is a directory, all regular files in the subtree of @path@ will be returned.
+-- All paths are relative to @path@ and not normalized (unless @path@ is already normalized).
+-- Symlinks are not handled.
 find :: FilePath -> IO [FilePath]
 find path = do
     isFile <- doesFileExist path
@@ -36,8 +47,12 @@ find path = do
             fs <- pathWalkLazy path
             return $ concatMap (\(d, _, fs') -> (</>) <$> [d] <*> fs') fs
 
+-- | Recursively enumerates all files at given directory subtrees.
+--
+-- Like 'find' but takes a list of paths.
 find' :: [FilePath] -> IO [FilePath]
 find' paths = concat <$> mapM find paths
 
+-- | Entrypoint of the program. Reads command line arguments and runs 'benchmark'.
 main :: IO ()
 main = parseArgs >>= benchmark
