@@ -59,9 +59,9 @@ parseSource = strOption (
     )
 
 parseClassifiers :: Parser [Labeled String]
-parseClassifiers = many (parseLabeledCommand <$> (strOption (
+parseClassifiers = many (parseLabeledCommand <$> strOption (
         long "classifier" <> short 'c' <> metavar "CMD" <> help "Classifier command")
-    ))
+    )
 
 parseJobs :: Parser Int
 parseJobs = option positiveNumber (

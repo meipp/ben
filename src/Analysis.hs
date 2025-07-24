@@ -6,8 +6,6 @@ import Measurement
 import Data.Function (on)
 import Data.List (group, groupBy, sort, sortOn)
 import Data.Maybe (fromMaybe)
-import Control.Monad (forM_)
-import Numeric (showFFloat)
 import Tables
 
 data Report = Report {
@@ -46,7 +44,7 @@ report label measurements = Report {
         _ -> False
         ) measurements),
     timeouts' = length (filter ((== Timeout) . status) measurements),
-    classifications' = count (concat (map classifications measurements))
+    classifications' = count (concatMap classifications measurements)
     }
 
 count :: Ord a => [a] -> [(a, Int)]

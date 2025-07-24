@@ -16,7 +16,6 @@ import System.IO (hGetContents')
 import Data.Time
 import Control.Concurrent
 import Control.Concurrent.Async
-import Control.Monad (when)
 import GHC.Generics (Generic)
 import Data.Aeson (toJSON, ToJSON)
 

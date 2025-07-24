@@ -59,7 +59,7 @@ data Table a = Table {
     }
 
 joinCells :: [String] -> String
-joinCells cells = "|" ++ (intercalate "|" cells) ++ "|"
+joinCells cells = "|" ++ intercalate "|" cells ++ "|"
 
 data RenderableCell = Dashes | Text String
 
