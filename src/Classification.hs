@@ -3,22 +3,24 @@ module Classification (
 ) where
 
 import System.Process
-import System.Exit
+import System.Exit (ExitCode(..))
 import System.IO (hPutStr, hClose)
-import Control.Monad (forM, join)
+import Control.Monad (filterM)
 import CmdLine (Labeled)
 
-classifyOne :: CreateProcess -> String -> IO Bool
-classifyOne cmd input = do
+runCommandSuppressingOutput :: CreateProcess -> String -> IO ExitCode
+runCommandSuppressingOutput cmd input = do
     (Just stdin, Just stdout, Just stderr, p) <- createProcess cmd { std_in = CreatePipe, std_out = CreatePipe, std_err = CreatePipe }
     hPutStr stdin input
     hClose stdin
-    result <- waitForProcess p
+    exitCode <- waitForProcess p
     hClose stdout
     hClose stderr
-    return $ result == ExitSuccess
+    return $ exitCode
 
 classify :: [Labeled String] -> String -> IO [String]
-classify classifiers input = fmap join $ forM classifiers $ \(name, cmd) -> do
-    result <- classifyOne (shell cmd) input
-    return $ if result then [name] else []
+classify classifiers input = map fst <$> filterM classifierMatchesInput classifiers
+    where
+        classifierMatchesInput :: Labeled String -> IO Bool
+        classifierMatchesInput (_, cmd) =
+            (== ExitSuccess) <$> runCommandSuppressingOutput (shell cmd) input
