@@ -10,11 +10,12 @@ import CmdLine (Labeled)
 
 classifyOne :: CreateProcess -> String -> IO Bool
 classifyOne cmd input = do
-    (Just stdin, Just stdout, _, p) <- createProcess cmd { std_in = CreatePipe, std_out = CreatePipe }
+    (Just stdin, Just stdout, Just stderr, p) <- createProcess cmd { std_in = CreatePipe, std_out = CreatePipe, std_err = CreatePipe }
     hPutStr stdin input
     hClose stdin
     result <- waitForProcess p
     hClose stdout
+    hClose stderr
     return $ result == ExitSuccess
 
 classify :: [Labeled String] -> String -> IO [String]
