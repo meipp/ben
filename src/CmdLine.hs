@@ -8,17 +8,26 @@ import Control.Monad (when)
 import Data.Fixed (Fixed, E6)
 import Options.Applicative
 
+-- | The result of running 'parseArgs'. A configuration of the benchmark to be run.
 data CmdLineArgs = CmdLineArgs {
-    programs :: [Labeled String],
-    files :: [FilePath],
-    classifiers :: [Labeled String],
-    jobs :: Int,
-    timeoutMicroseconds :: Int,
-    jsonExport :: Bool,
-    repetitions :: Int
+    programs :: [Labeled String],    -- ^ programs to benchmark
+    files :: [FilePath],             -- ^ list of regular files or directories to search for files to pass to the programs
+    classifiers :: [Labeled String], -- ^ classifier commands to be used by 'Classification.classify'
+    jobs :: Int,                     -- ^ number of program calls to run in parallel
+    timeoutMicroseconds :: Int,      -- ^ timeout per program call
+    jsonExport :: Bool,              -- ^ whether to print a JSON dump of all measurements after completion
+    repetitions :: Int               -- ^ number of times to re-run each program call
 } deriving (Show)
 
--- Type alias for an a value with an assigned name
+-- | Type alias for an a value with an assigned name.
+--
+-- This allows a value to carry and retain a name and still be transformed through 'fmap'.
+--
+-- We'll use this for labeled commands of the form
+-- @Program 1: ./program1 ARG1 ARG2@ where we want to run the command as @./program1 ARG1 ARG2@,
+-- but display it as @Program 1@.
+--
+-- Both the @-p@ and @-c@ options support labeled commands.
 type Labeled a = (String, a)
 
 parser :: Parser CmdLineArgs
@@ -31,6 +40,25 @@ parser = CmdLineArgs
     <*> parseJSONExport
     <*> parseRepetitions
 
+-- | Split a labeled command into label and command part.
+--
+-- Labeled commands have the form
+-- @Program 1: ./program1 ARG1 ARG2@ where we want to run the command as @./program1 ARG1 ARG2@,
+-- but display it as @Program 1@.
+--
+-- This function takes an input of the form @X:Y@, splitting it on the first occurrence of @\':\'@,
+-- dropping all trialing whitespaces from @Y@ and ultimately returns @(X, Y)@.
+-- If the input does not contain @\':\'@, i.e. if there is no label supplied, the command itself is used as label:
+-- Inputs of the form @X@ return @(X, X)@.
+--
+-- For example:
+-- @"Timeout mentioned: grep ^timeout$"@ returns @("Timeout mentioned", "grep ^timeout$")@,
+-- whereas @"grep ^timeout$"@ returns @("grep ^timeout$", "grep ^timeout$")@.
+--
+-- This means that commands that do contain a @\':\'@ __must__ be labeled, otherwise this function
+-- will splice the command at the first occurrence of @\':\'@, confusing anything leading up to it for the label.
+--
+-- Both the @-p@ and @-c@ options support labeled commands.
 parseLabeledCommand :: String -> Labeled String
 parseLabeledCommand s =
     case break (== ':') s of
@@ -39,12 +67,20 @@ parseLabeledCommand s =
       -- Unreachable
       _ -> undefined
 
+-- | Helper to read arguments as positive numbers in a 'Parser'.
 positiveNumber :: (Read a, Num a, Ord a) => ReadM a
 positiveNumber = do
     x <- auto
     when (x <= 0) (fail "must be positive")
     return x
 
+-- | Helper to read milliseconds in a 'Parser'.
+--
+-- The input is written as seconds.
+-- 1 denotes 1 second, i.e. 1000000 microseconds.
+-- 0.5 denotes half a second.
+-- 0.000001 denotes one microsecond.
+-- The precision cutoff is at microseconds, so 0.0000009 is interpreted as 0.
 parseMicroseconds :: ReadM Int
 parseMicroseconds = do
     t <- positiveNumber :: ReadM (Fixed E6)
@@ -85,6 +121,7 @@ parseRepetitions = option positiveNumber (
         long "repetitions" <> short 'r' <> metavar "N" <> help "Number of times to repeat running each program on each input" <> value 1
     )
 
+-- | Runs the argument parser on the supplied command line arguments and returns a 'CmdLineArgs'.
 parseArgs :: IO CmdLineArgs
 parseArgs = execParser opts
     where
