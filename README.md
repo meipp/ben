@@ -1,7 +1,7 @@
 # ben - run benchmarks
 
 ## Example 1 - Fibonacci
-Suppose we have a fast fibonacci implementation ([good.py](./examples/fibonacci/good.py)) and a slow one ([bad.py](./examples/fibonacci/bad.py)). We want to benchmark their performance on the inputs `10` (easy), `40` (bad.py will be slow here) and `100` (bad.py is going to timeout).
+Suppose we have a fast fibonacci implementation ([good.py](./examples/fibonacci/good.py)) and a slow one ([bad.py](./examples/fibonacci/bad.py)). We want to benchmark their performance on the inputs `10` (easy), `40` (bad.py will be slow here) and `100` (bad.py is going to timeout). This example needs `python3` installed.
 
 We benchmark the programs `./good.py` and `./bad.py` on the input files in `./inputs/` with a timeout of `60` seconds for each program call.
 ```bash
@@ -16,7 +16,7 @@ The output will look something like this:
 ```
 
 ## Example 2 - String Solving
-Let's benchmark the two string solvers CVC4 and Z3 on the files in [examples/string-solving/test-instances](./examples/string-solving/test-instances) and count how often they output `sat` and `unsat`.
+Let's benchmark the two string solvers CVC4 and Z3 on the files in [examples/string-solving/test-instances](./examples/string-solving/test-instances) and count how often they output `sat` and `unsat`. This example needs `cvc4`, `z3` and `grep` installed.
 
 ```bash
 ben \
