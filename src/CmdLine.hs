@@ -74,7 +74,7 @@ positiveNumber = do
     when (x <= 0) (fail "must be positive")
     return x
 
--- | Helper to read milliseconds in a 'Parser'.
+-- | Helper to read microseconds in a 'Parser'.
 --
 -- The input is written as seconds.
 -- 1 denotes 1 second, i.e. 1000000 microseconds.
