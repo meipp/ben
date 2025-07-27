@@ -1,5 +1,15 @@
 # ben - run benchmarks
 
+`ben` is an easy to use benchmarking tool that takes a set of programs and a set of input files and runs every program on every input file measuring their running time.
+
+The programs benchmarked can be any valid shell command. On top of that, `ben` allows for classifying and grouping program runs by their produced output, parallelization, timeouts, JSON exports and repeated re-runs of benchmark for empirical robustness.
+
+## Usage
+```
+ben (-p|--program CMD) (-s|--source PATH) [-c|--classifier CMD]
+    [-j|--jobs N] [-t|--timeout SECONDS] [-J|--json] [-r|--repetitions N]
+```
+
 ## Example 1 - Fibonacci
 Suppose we have a fast fibonacci implementation ([good.py](./examples/fibonacci/good.py)) and a slow one ([bad.py](./examples/fibonacci/bad.py)). We want to benchmark their performance on the inputs `10` (easy), `40` (bad.py will be slow here) and `100` (bad.py is going to timeout). This example needs `python3` installed.
 
