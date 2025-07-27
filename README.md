@@ -3,7 +3,7 @@
 ## Example 1 - Fibonacci
 Suppose we have a fast fibonacci implementation ([good.py](./examples/fibonacci/good.py)) and a slow one ([bad.py](./examples/fibonacci/bad.py)). We want to benchmark their performance on the inputs `10` (easy), `40` (bad.py will be slow here) and `100` (bad.py is going to timeout). This example needs `python3` installed.
 
-We benchmark the programs `./good.py` and `./bad.py` on the input files in [examples/fibonacci/inputs](.examples/fibonacci/inputs) with a timeout of `60` seconds for each program call.
+We benchmark the programs `./good.py` and `./bad.py` on the input files in [examples/fibonacci/inputs](./examples/fibonacci/inputs) with a timeout of `60` seconds for each program call.
 ```bash
 ben -p ./good.py -p ./bad.py -s ./inputs/ -t 60
 ```
