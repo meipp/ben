@@ -32,3 +32,81 @@ The output will look something like this:
 | cvc4    |   4 |     3 |        1 |      0 |     20106 |
 | z3      |   4 |     4 |        0 |      0 |       195 |
 ```
+
+## Installation
+To install locally run
+```bash
+git clone https://github.com/meipp/ben
+cd ben
+stack install
+```
+This will install `ben` to `$HOME/.local/bin/ben`. Make sure to have `$HOME/.local/bin/` in your `$PATH`.
+
+### Running without installing
+To run without installing, you can build locally:
+```bash
+git clone https://github.com/meipp/ben
+cd ben
+stack build
+```
+Now instead of `ben -p ...`, run `stack run -- -p ...`.
+
+## Command line options
+
+### `-p`, `--program`
+Adds a program to include in the benchmark. Multiple uses allowed. At least one use mandatory.
+
+```bash
+ben -p program1 -p program2 -s ...
+```
+will run a benchmark on these two programs.
+
+`-p` takes a command that is evaluated in the system shell. This means commands can be complex:
+```bash
+ben -p "sleep 2 && program1 arg1 arg2" ...
+```
+
+### `-s`, `--source`
+Adds a path to the list of input files. Multiple uses allowed. At least one use mandatory.
+
+### `-c`, `--classifier`
+Adds a program/command to the list of classifiers. Multiple uses allowed.
+
+A classifier is a program/command to evaluate against a program's stdout. The classifier returns true or false return codes.
+Just like `-p`, classifiers can be complex shell commands.
+
+```bash
+ben -c "grep ^sat$" ...
+```
+will run a benchmark with a classifier that returns true for every program run where the output contains a line `"sat"`.
+
+### `-j`, `--jobs`
+Number of jobs to run in parallel, i.e. the number of program invocations to do at a time. The default is 1.
+
+The value should not exceed the machine's number of available cores/threads. Otherwise all invocations can be subject to process switching/scheduling behavior and wall-clock time measurements are affected.
+
+### `-t`, `--timeout`
+Sets a timeout (in seconds) for every program call to be run. After exceeding the timeout, the program is terminated and its run is counted as a *Timeout*. The default is 60 seconds. The timeout cannot be disabled. `-t` allows decimals.
+
+```bash
+ben -t 0.5 ...
+```
+runs a benchmark with a timeout of half a second.
+
+### `-j`, `--json`
+Produces a JSON dump of all measurements and prints it in the last line of output. The JSON is not prettified.
+
+The JSON output for [Example 1](#example-1---fibonacci)
+```bash
+ben -p ./good.py -p ./bad.py -s ./inputs/ -t 60 -J
+```
+will look something like
+```json
+[{"classifications":[],"command":"./good.py ./inputs/input-2.txt","program":"./good.py","status":"0","stderr":"","stdout":"102334155\n","time":15},{"classifications":[],"command":"./good.py ./inputs/input-1.txt","program":"./good.py","status":"0","stderr":"","stdout":"55\n","time":13},{"classifications":[],"command":"./good.py ./inputs/input-3.txt","program":"./good.py","status":"0","stderr":"","stdout":"354224848179261915075\n","time":14},{"classifications":[],"command":"./bad.py ./inputs/input-2.txt","program":"./bad.py","status":"0","stderr":"","stdout":"102334155\n","time":17718},{"classifications":[],"command":"./bad.py ./inputs/input-1.txt","program":"./bad.py","status":"0","stderr":"","stdout":"55\n","time":14},{"classifications":[],"command":"./bad.py ./inputs/input-3.txt","program":"./bad.py","status":"timeout","stderr":"","stdout":"","time":60021}]
+```
+
+### `-r`, `--repetitions`
+Number of times to re-run each program invocation. A higher number of repetitions usually leads to more stable and reproducible results. The default is 1.
+
+### `-h`, `--help`
+Displays help.
