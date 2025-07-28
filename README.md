@@ -103,7 +103,7 @@ ben -t 0.5 ...
 ```
 runs a benchmark with a timeout of half a second.
 
-### `-j`, `--json`
+### `-J`, `--json`
 Produces a JSON dump of all measurements and prints it in the last line of output. The JSON is not prettified.
 
 The JSON output for [Example 1](#example-1---fibonacci)
