@@ -25,7 +25,9 @@ benchmark args@CmdLineArgs{programs, files, classifiers, jobs, jsonExport, repet
     measurements <- parallelizeWithProgressBar jobs (uncurry (measureCommand args)) [(c, f) | c <- commands, f <- fs]
     analyze (map fst classifiers) measurements
 
-    when jsonExport $ printJSON measurements
+    when jsonExport $ do
+        putStrLn ""
+        printJSON measurements
 
 printJSON :: ToJSON a => a -> IO ()
 printJSON x = do
