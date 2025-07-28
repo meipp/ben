@@ -52,6 +52,7 @@ You can download the binary directly from the [release page](https://github.com/
 ```bash
 wget https://github.com/meipp/ben/releases/latest/download/ben && chmod +x ./ben
 ```
+Note that the binary has a runtime dependency on `glibc` and `gmp`.
 
 ### Installing via stack
 If you use `stack`:
