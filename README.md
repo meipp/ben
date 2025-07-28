@@ -46,10 +46,16 @@ The output will look something like this:
 ```
 
 ## Installation
-To install locally run
+
+### Downloading the binary
+You can download the binary directly from the [release page](https://github.com/meipp/ben/releases/latest):
 ```bash
-git clone https://github.com/meipp/ben
-cd ben
+wget https://github.com/meipp/ben/releases/latest/download/ben && chmod +x ./ben
+```
+
+### Installing via stack
+If you use `stack`:
+```bash
 stack install
 ```
 This will install `ben` to `$HOME/.local/bin/ben`. Make sure to have `$HOME/.local/bin/` in your `$PATH`.
@@ -57,8 +63,6 @@ This will install `ben` to `$HOME/.local/bin/ben`. Make sure to have `$HOME/.loc
 ### Running without installing
 To run without installing, you can build locally:
 ```bash
-git clone https://github.com/meipp/ben
-cd ben
 stack build
 ```
 Now instead of `ben -p ...`, run `stack run -- -p ...`.
