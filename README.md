@@ -2,6 +2,8 @@
 
 `ben` is an easy to use benchmarking tool that takes a set of programs and a set of input files and runs every program on every input file measuring their running time.
 
+![](./demo.gif)
+
 The programs benchmarked can be any valid shell command. On top of that, `ben` allows for classifying and grouping program runs by their produced output, parallelization, timeouts, JSON exports and repeated re-runs of benchmark for empirical robustness.
 
 ## Usage
